@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 
 	std::ifstream fin("Makefile");
 	if (!fin.is_open()) {
-		std::cout << "File can't be open" << std::endl;
+		std::cout << "File can't be open. Check if it is \"Makefile\"" << std::endl;
 		return 1;
 	}
 
@@ -106,6 +106,10 @@ int main(int argc, char* argv[]) {
 			tasks[tasks.size() - 1]->set_dependences(dependeces);
 		} else {
 			//clean initial and final whitespaces
+			if (tasks.empty()) {
+				std::cout << "Uncorrect input file" << std::endl;
+				return 1;
+			}
 			auto s = trim(str);
 			if (!s.empty())
 				tasks[tasks.size() - 1]->add_action(s);
@@ -129,6 +133,6 @@ int main(int argc, char* argv[]) {
 		//std::cout << "ochen zhal" << std::endl;
 	}
 	
-	//std::system("pause");
+	std::system("pause");
 
 }
