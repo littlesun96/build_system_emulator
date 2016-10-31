@@ -19,6 +19,10 @@ void task::set_target(std::string target) {
 	this->target = target;
 }
 
+void task::set_status(int status) {
+	this->status = status;
+}
+
 void task::add_action(std::string action) {
 	actions.push_back(action);
 }
@@ -33,6 +37,10 @@ std::vector<std::string> task::get_actions() {
 
 std::string task::get_target() {
 	return this->target;
+}
+
+int task::get_status() {
+	return this->status;
 }
 
 task::~task()

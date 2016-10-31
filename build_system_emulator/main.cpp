@@ -20,7 +20,7 @@ std::set<std::string> used;
 std::string trim(const std::string& str, const std::string& whitespace = " \t\n") {
 	const auto strBegin = str.find_first_not_of(whitespace);
 	if (strBegin == std::string::npos)
-		return ""; // no content
+		return "";
 
 	const auto strEnd = str.find_last_not_of(whitespace);
 	const auto strRange = strEnd - strBegin + 1;
@@ -40,25 +40,30 @@ void exec(const char* cmd) {
 
 bool dfs(std::string command) {
 
-	used.insert(command);
-	if (maps.count(command) == 0) {
-		//TODO 
-		throw my_exception("Uncorrect dependence: no target \"" + command + "\"");
-	}
+	std::shared_ptr<task> ptr = maps[command];
 
-	for (auto d : maps[command]->get_dependeces()) {
-		if (used.count(d) == 0) {
+	ptr->set_status(0);
+
+	//check for dependences
+	for (auto d : ptr->get_dependeces()) {
+		if (maps.count(d) == 0) {
+			throw my_exception("Uncorrect dependence: no target \"" + command + "\"");
+		}
+		if (maps[d]->get_status() == -1) {
 			dfs(d);
-		} else {
+		} else if (maps[d]->get_status() == 0){
 			throw my_exception("Wrong dependences: cycle");
 		}
 	}
 
 	std::cout << command << std::endl;
 	
-	for (std::string action : maps[command]->get_actions()) {
+	//execute actions
+	for (std::string action : ptr->get_actions()) {
 		exec(action.c_str());
 	}
+
+	ptr->set_status(1);
 
 	return true;
 	
@@ -100,6 +105,7 @@ int main(int argc, char* argv[]) {
 				dependeces.push_back(s);
 			tasks[tasks.size() - 1]->set_dependences(dependeces);
 		} else {
+			//clean initial and final whitespaces
 			auto s = trim(str);
 			if (!s.empty())
 				tasks[tasks.size() - 1]->add_action(s);
@@ -113,12 +119,16 @@ int main(int argc, char* argv[]) {
 	try {
 		if (!fin.eof()) throw std::runtime_error("Invalid data from file");
 		fin.close();
+		if (maps.count(command) == 0) {
+			throw my_exception("Uncorrect dependence: no target \"" + command + "\"");
+		}
+		//start execute dependence-tree
 		dfs(command);
 	} catch (std::exception& e){
 		std::cout << e.what() << std::endl;
-		std::cout << "ochen zhal" << std::endl;
+		//std::cout << "ochen zhal" << std::endl;
 	}
 	
-	std::system("pause");
+	//std::system("pause");
 
 }
