@@ -15,7 +15,6 @@
 
 std::vector<std::shared_ptr<task>> tasks;
 std::map<std::string, std::shared_ptr<task>> maps;
-std::set<std::string> used;
 
 std::string trim(const std::string& str, const std::string& whitespace = " \t\n") {
 	const auto strBegin = str.find_first_not_of(whitespace);
@@ -133,6 +132,6 @@ int main(int argc, char* argv[]) {
 		//std::cout << "ochen zhal" << std::endl;
 	}
 	
-	std::system("pause");
+	//std::system("pause");
 
 }
