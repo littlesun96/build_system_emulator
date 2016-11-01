@@ -94,6 +94,10 @@ int main(int argc, char* argv[]) {
 				std::cout << "Uncorrect target" << std::endl;
 				return 1;
 			}
+			if (maps.count(name) > 0) {
+				std::cout << "Same names of targets" << std::endl;
+				return 1;
+			}
 			task t(name);
 			std::shared_ptr<task> ptr = std::make_shared<task>(t);
 			tasks.push_back(ptr);
@@ -132,6 +136,6 @@ int main(int argc, char* argv[]) {
 		//std::cout << "ochen zhal" << std::endl;
 	}
 	
-	//std::system("pause");
+	std::system("pause");
 
 }
