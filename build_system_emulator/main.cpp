@@ -4,13 +4,15 @@
 #include <cstring>
 #include <algorithm>
 #include <cctype>
-#include "task.h"
 #include <sstream>
 #include <map>
 #include <set>
 #include <memory>
 #include <stdexcept>
 #include <exception>
+#include <stack>
+
+#include "task.h"
 #include "my_exception.h"
 
 std::vector<std::shared_ptr<task>> tasks;
@@ -36,36 +38,38 @@ void exec(const char* cmd) {
 
 }
 
+void dfs(std::string command) {
 
-bool dfs(std::string command) {
+	std::stack<std::string> stack;
+	stack.push(command);
 
-	std::shared_ptr<task> ptr = maps[command];
-
-	ptr->set_status(0);
-
-	//check for dependences
-	for (auto d : ptr->get_dependeces()) {
-		if (maps.count(d) == 0) {
-			throw my_exception("Uncorrect dependence: no target \"" + command + "\"");
+	while (!stack.empty()) {
+		std::shared_ptr<task> ptr = maps[stack.top()];
+		if (ptr->get_status() == 0) {
+			std::cout << ptr->get_target() << std::endl;
+			for (auto a : ptr->get_actions()) {
+				exec(a.c_str());
+			}
+			ptr->set_status(1);
+			stack.pop();
+		} else if (ptr->get_status() == 1) {
+			stack.pop();
+		} else {
+			ptr->set_status(0);
+			for (auto d : ptr->get_dependeces()) {
+				if (maps.count(d) == 0) {
+					throw my_exception("Uncorrect dependence: no target \"" + d + "\"");
+				}
+				if (maps[d]->get_status() == 0) {
+					throw my_exception("Wrong dependences: cycle");
+				}
+				if (maps[d]->get_status() == -1) {
+					stack.push(d);
+				}
+			}
 		}
-		if (maps[d]->get_status() == -1) {
-			dfs(d);
-		} else if (maps[d]->get_status() == 0){
-			throw my_exception("Wrong dependences: cycle");
-		}
+
 	}
-
-	std::cout << command << std::endl;
-	
-	//execute actions
-	for (std::string action : ptr->get_actions()) {
-		exec(action.c_str());
-	}
-
-	ptr->set_status(1);
-
-	return true;
-	
 }
 
 int main(int argc, char* argv[]) {
@@ -129,13 +133,15 @@ int main(int argc, char* argv[]) {
 		if (maps.count(command) == 0) {
 			throw my_exception("Uncorrect dependence: no target \"" + command + "\"");
 		}
+
 		//start execute dependence-tree
 		dfs(command);
+
 	} catch (std::exception& e){
 		std::cout << e.what() << std::endl;
 		//std::cout << "ochen zhal" << std::endl;
 	}
 	
-	std::system("pause");
+	//std::system("pause");
 
 }
